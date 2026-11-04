@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; worker-src blob: https://cdnjs.cloudflare.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="만능기판 패턴도 연습판 — 회로도를 보고 패턴을 그리며 연결을 바로 확인해요"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%232f6fd6%22/%3E%3Cg fill=%22%23fff%22%3E%3Ccircle cx=%224%22 cy=%224%22 r=%221.2%22/%3E%3Ccircle cx=%228%22 cy=%224%22 r=%221.2%22/%3E%3Ccircle cx=%2212%22 cy=%224%22 r=%221.2%22/%3E%3Ccircle cx=%224%22 cy=%228%22 r=%221.2%22/%3E%3Ccircle cx=%2212%22 cy=%228%22 r=%221.2%22/%3E%3Ccircle cx=%224%22 cy=%2212%22 r=%221.2%22/%3E%3Ccircle cx=%228%22 cy=%2212%22 r=%221.2%22/%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%221.2%22/%3E%3C/g%3E%3C/svg%3E"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>패턴도 연습판</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; worker-src blob: https://cdnjs.cloudflare.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="만능기판 패턴도 연습판 — 회로도를 보고 패턴을 그리며 연결을 바로 확인해요"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%232f6fd6%22/%3E%3Cg fill=%22%23fff%22%3E%3Ccircle cx=%224%22 cy=%224%22 r=%221.2%22/%3E%3Ccircle cx=%228%22 cy=%224%22 r=%221.2%22/%3E%3Ccircle cx=%2212%22 cy=%224%22 r=%221.2%22/%3E%3Ccircle cx=%224%22 cy=%228%22 r=%221.2%22/%3E%3Ccircle cx=%2212%22 cy=%228%22 r=%221.2%22/%3E%3Ccircle cx=%224%22 cy=%2212%22 r=%221.2%22/%3E%3Ccircle cx=%228%22 cy=%2212%22 r=%221.2%22/%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%221.2%22/%3E%3C/g%3E%3C/svg%3E"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style><script>window.PATTERN_LITE=true</script></head><body><title>패턴도 연습판</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
@@ -242,7 +242,7 @@ kbd{font:11px var(--mono);border:1px solid var(--line);border-bottom-width:2px;b
           <span class="sch-sum" id="schSum"></span>
           <span class="spacer"></span>
           <div class="seg" id="schView" role="group" aria-label="회로도 보기">
-            <button class="b" data-v="check">연결 확인</button><button class="b" data-v="image">원본</button>
+            <button class="b" data-v="check" id="vCheck">연결 확인</button><button class="b" data-v="image">원본</button>
           </div>
           <button class="b" id="schOut" aria-label="회로도 축소">−</button><button class="b" id="schIn" aria-label="회로도 확대">+</button>
           <button class="b" id="schScan" title="올린 회로도 사진을 Claude가 읽어서 연결표를 만들어요">스캔</button>
@@ -281,6 +281,7 @@ kbd{font:11px var(--mono);border:1px solid var(--line);border-bottom-width:2px;b
 <script>
 (()=>{
 'use strict';
+const LITE=!!window.PATTERN_LITE;
 const $=s=>document.querySelector(s);
 const K=(x,y)=>x+','+y;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -391,6 +392,7 @@ const LIBMAP=Object.fromEntries(LIB.map(i=>[i.key,i]));
 /* 불러온 데이터 정리: 파일·저장소에서 온 값은 형식을 다시 맞춰서 씀 */
 const num=(v,d,lo,hi)=>{v=Number(v);if(!isFinite(v))v=d;return Math.max(lo,Math.min(hi,v))};
 const str=(v,max=60)=>String(v??'').replace(/[\u0000-\u001f]/g,' ').slice(0,max);
+const strML=(v,max)=>String(v??'').replace(/[\u0000-\u0008\u000b-\u001f]/g,' ').slice(0,max);
 const isHex=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c);
 function cleanParams(lib,ip){const l=LIBMAP[lib];const pr={...(l.params||{})};ip=ip&&typeof ip==='object'?ip:{};if('span' in pr&&ip.span!=null)pr.span=num(ip.span,pr.span,1,12)|0;if('n' in pr&&ip.n!=null)pr.n=num(ip.n,pr.n,2,40)|0;return pr}
 function cleanPart(p){const l=p&&LIBMAP[p.lib];if(!l)return null;return{id:num(p.id,0,0,1e9)|0,lib:l.key,kind:l.kind,ic:l.ic,ref:str(p.ref,16)||'X',value:str(p.value,40)||l.value||l.name,x:num(p.x,0,-5,200)|0,y:num(p.y,0,-5,200)|0,rot:num(p.rot,0,0,3)|0,params:cleanParams(l.key,p.params)}}
@@ -691,7 +693,7 @@ function draw(){
     for(const p of S.parts){drawLabels(p,th,false);drawPinNums(p,th);drawICPins(p,th,false)}
   }
   const acc=getVar('--accent');
-  if(SCHEV){ctx.lineWidth=2.4;ctx.strokeStyle='#d14334';for(const k of SCHEV.badKeys){const[x,y]=k.split(',').map(Number),s=W2S(x,y);ctx.beginPath();ctx.arc(s[0],s[1],z*.46,0,7);ctx.stroke()}
+  if(SCHEV){ctx.lineWidth=2.4;ctx.strokeStyle='#d14334';if(!LITE)for(const k of SCHEV.badKeys){const[x,y]=k.split(',').map(Number),s=W2S(x,y);ctx.beginPath();ctx.arc(s[0],s[1],z*.46,0,7);ctx.stroke()}
     if(schHover>=0&&SCHEV.netKeys[schHover]){ctx.strokeStyle=acc;ctx.lineWidth=2.4;ctx.fillStyle=acc;for(const k of SCHEV.netKeys[schHover]){const[x,y]=k.split(',').map(Number),s=W2S(x,y);ctx.globalAlpha=.25;ctx.beginPath();ctx.arc(s[0],s[1],z*.55,0,7);ctx.fill();ctx.globalAlpha=1;ctx.stroke()}}}
   if(hiNet){ctx.strokeStyle=acc;ctx.lineWidth=2;for(const k of hiNet.keys){if(!occ.has(k))continue;const[x,y]=k.split(',').map(Number),s=W2S(x,y);ctx.beginPath();ctx.arc(s[0],s[1],z*.5,0,7);ctx.stroke()}}
   if(selW)drawHandles(selW);
@@ -938,7 +940,7 @@ function status(){
   $('#st-pos').textContent=hover&&inB(...hover)?posName(...hover):'';
   let n='';if(hover){const k=K(...hover),o=occ.get(k),g=keyG.get(k);
     if(o)n=`${o.p.ref}·${o.q.n} ${o.q.name}`;if(g&&(g.pins.length>1||g.wires.length)){n+=(n?' · ':'')+g.name+(g.vcc&&!g.gnd?` ${fmtV(S.vcc)}V`:g.gnd&&!g.vcc?' 0V':'')}}
-  if(hover&&SCHEV){const ni=SCHEV.keyNet.get(K(...hover));{const o=occ.get(K(...hover));if(o&&SCHEV.badKeys.has(K(...hover))){const ex=SCHEV.expect(o);if(ex)n+=(n?' · ':'')+(ex.net==='NC'?'정답: NC':'정답: '+ex.net+' ('+ex.mates.slice(0,3).join(', ')+')')}}
+  if(hover&&SCHEV){const ni=SCHEV.keyNet.get(K(...hover));{const o=occ.get(K(...hover));if(!LITE&&o&&SCHEV.badKeys.has(K(...hover))){const ex=SCHEV.expect(o);if(ex)n+=(n?' · ':'')+(ex.net==='NC'?'정답: NC':'정답: '+ex.net+' ('+ex.mates.slice(0,3).join(', ')+')')}}
     if(ni!=null){n+=(n?' · ':'')+'회로도 '+SCH.nets[ni].name;if(schHover<0)markNet(ni)}else if(schHover<0)markNet(-1)}
   $('#st-net').textContent=n;
 }
@@ -1006,7 +1008,7 @@ function renderPane(){
     if(p.kind==='header')h+=`<div class="row"><label for="i-n">핀 수</label><input id="i-n" type="number" min="2" max="40" value="${p.params.n}"></div>`;
     {const tw=wiresOnPart(p);if(tw.length){const cs=[...new Set(tw.map(w=>w.color||'auto'))];h+=`<div class="row"><label>연결선 색</label><div class="sws" style="padding:0">${swHTML(cs.length===1?cs[0]:'')}</div></div><div class="meta" style="margin-top:-4px">이 부품 핀에 닿은 선 ${tw.length}개를 한꺼번에 바꿔요</div>`}}
     h+=`<div class="meta">1번핀 ${posName(pw[0].x,pw[0].y)} · ${p.rot*90}°</div><div class="btns"><button class="b" data-act="rot">회전</button><button class="b danger" data-act="del">삭제</button></div>`;
-    if(pw.length>1)h+=`<div class="tbl"><table><tr><th>핀</th><th>이름</th><th>위치</th><th>연결</th>${SCHEV&&SCHEV.partSt.get(p.ref)==='placed'?'<th>정답</th>':''}</tr>${pw.map(q=>{const k=K(q.x,q.y);const o=occ.get(k);const ex=SCHEV&&SCHEV.partSt.get(p.ref)==='placed'&&o?SCHEV.expect(o):null;const bad=SCHEV&&SCHEV.badKeys.has(k);
+    if(pw.length>1)h+=`<div class="tbl"><table><tr><th>핀</th><th>이름</th><th>위치</th><th>연결</th>${SCHEV&&SCHEV.partSt.get(p.ref)==='placed'?(LITE?'<th>이을 곳</th>':'<th>정답</th>'):''}</tr>${pw.map(q=>{const k=K(q.x,q.y);const o=occ.get(k);const ex=SCHEV&&SCHEV.partSt.get(p.ref)==='placed'&&o?SCHEV.expect(o):null;const bad=!LITE&&SCHEV&&SCHEV.badKeys.has(k);
       return`<tr><td class="m">${q.n}</td><td class="m">${esc(q.name)}</td><td class="m">${posName(q.x,q.y)}</td><td${bad?' style="color:var(--bad);font-weight:600"':''}>${netText(k)}</td>${SCHEV&&SCHEV.partSt.get(p.ref)==='placed'?`<td>${ex?(ex.net==='NC'?'<span class="nn">NC</span>':`<b>${esc(ex.net)}</b> <span class="nn">${esc(ex.mates.slice(0,3).join(', '))}${ex.mates.length>3?' 외':''}</span>`):''}</td>`:''}</tr>`}).join('')}</table></div>`;
     pane.innerHTML=h;return}
   if(sel&&sel.type==='wire'){const w=S.wires.find(x=>x.id===sel.id);if(!w){sel=null;return renderPane()}
@@ -1196,14 +1198,17 @@ function openTaskEditor(T){
   setTimeout(()=>$('#tkName').focus(),0)}
 function boardData(withSch){const o={app:'pattern-board',ver:2,saved:new Date().toISOString(),board:{parts:S.parts,wires:S.wires,vcc:S.vcc,task:S.task,nid:S.nid,cols:S.cols,rows:S.rows}};
   const tk=taskOf(S.task);if(tk&&!tk.builtin)o.task={...tk};
+  if(withSch&&REF.pages.length)o.ref={name:REF.name,page:REF.page,pages:REF.pages};
   if(withSch&&SCH.parts.length)o.sch={name:SCH.name,text:SCH.text,traces:SCH.traces||[],tracePage:SCH.tracePage,traceFor:SCH.traceFor||null};return o}
 function applyBoardData(o){const raw=o&&o.board?o.board:o;if(!raw||!Array.isArray(raw.parts)||!Array.isArray(raw.wires))throw new Error('form');
   if(raw.parts.some(p=>!p||!LIBMAP[p.lib]))throw new Error('lib');const B=cleanBoard(raw);
   pushUndo();S.parts=B.parts;S.wires=B.wires;S.vcc=B.vcc||S.vcc;S.task=B.task??S.task;S.cols=B.cols||28;S.rows=B.rows||62;
   S.nid=Math.max(B.nid||1,...B.parts.map(p=>p.id+1),...B.wires.map(w=>w.id+1),1);S.sample=false;sel=null;
-  let schMsg='';if(o.sch&&o.sch.text){const keep={traces:cleanTraces(o.sch.traces),tracePage:num(o.sch.tracePage,0,0,99)|0,traceFor:o.sch.traceFor==='b1'?'b1':null};o.sch.text=str(o.sch.text,30000);o.sch.name=str(o.sch.name,60);SCH.traces=keep.traces;SCH.tracePage=keep.tracePage;SCH.traceFor=keep.traceFor;applyNetText(o.sch.text,o.sch.name);schMsg=' (연결표 포함)'}
+  let schMsg='';if(o.sch&&o.sch.text){const keep={traces:cleanTraces(o.sch.traces),tracePage:num(o.sch.tracePage,0,0,99)|0,traceFor:o.sch.traceFor==='b1'?'b1':null};o.sch.text=strML(o.sch.text,30000);o.sch.name=str(o.sch.name,60);SCH.traces=keep.traces;SCH.tracePage=keep.tracePage;SCH.traceFor=keep.traceFor;applyNetText(o.sch.text,o.sch.name);schMsg=' (연결표 포함)'}
   if(o.task)o.task=cleanTask(o.task);
   if(o.task&&o.task.id&&o.task.items.length){const i=CTASKS.findIndex(t=>t.id===o.task.id);if(i>=0)CTASKS[i]=o.task;else CTASKS.push(o.task);saveTasks();S.task=o.task.id;schMsg+=(schMsg?' · ':' (')+'과제 「'+o.task.name+'」 포함'+(schMsg?'':')')}
+  if(o.ref&&Array.isArray(o.ref.pages)){const pages=o.ref.pages.filter(u=>typeof u==='string'&&/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(u)).slice(0,30);
+    if(pages.length){REF={pages,page:Math.min(num(o.ref.page,0,0,29)|0,pages.length-1),name:str(o.ref.name,80)};imgPix=null;saveRef();if(LITE||!SCH.parts.length)SV.view='image';SV.min=false;saveSV();schMsg+=(schMsg?' · ':' (')+'회로도 그림 포함'+(schMsg?'':')')}}
   changed();fit();return schMsg}
 function stamp(){const d=new Date(),z=n=>String(n).padStart(2,'0');return`${d.getFullYear()}${z(d.getMonth()+1)}${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}`}
 let dlFn;async function getDownloads(){if(dlFn!==undefined)return dlFn;if(typeof window.claude?.use!=='function')return dlFn=null;try{dlFn=await window.claude.use('downloads')}catch(e){dlFn=null}return dlFn}
@@ -1217,7 +1222,7 @@ async function loadBoardFile(file){if(!file)return;try{const txt=await file.text
 $('#boardFile').addEventListener('change',e=>{loadBoardFile(e.target.files[0]);e.target.value=''});
 $('#b-io').onclick=()=>{
   openModal('파일',`<div class="opt">
-    <button class="b" data-io="save"><b>파일로 저장</b><small>기판 + 연결표를 .json 파일로 내려받아요. 과제 제출이나 다른 컴퓨터로 옮길 때 써요</small></button>
+    <button class="b" data-io="save"><b>파일로 저장</b><small>기판 + 연결표 + 회로도 그림 + 과제를 .json 파일로 내려받아요. 과제 제출이나 다른 컴퓨터로 옮길 때 써요</small></button>
     <button class="b" data-io="saveb"><b>기판만 저장</b><small>연결표 없이 기판 배치·배선만 저장해요</small></button>
     <button class="b" data-io="open"><b>파일 불러오기</b><small>저장해 둔 .json 파일을 열어요. 기판에 파일을 끌어다 놓아도 돼요</small></button></div>
     <details><summary style="cursor:pointer;font-size:12.5px;color:var(--muted)">파일 저장이 안 될 때: 글로 복사·붙여넣기</summary>
@@ -1364,7 +1369,7 @@ CLK: U1.3 U4.14</pre>
   <div class="tip">과제는 <b>파일로 저장</b>할 때 같이 들어가요. 연결표 + 과제가 담긴 파일을 후배에게 주면, 열자마자 같은 회로도와 체크리스트가 떠요.</div>`},
  {id:'file',t:'저장·불러오기',b:`<h3>저장 · 불러오기</h3>
   <ul><li>작업은 <b>이 브라우저에 자동 저장</b>돼요. 다른 사람과는 저장되는 곳이 따로라 덮어쓰지 않아요.</li>
-  <li><b>파일 → 파일로 저장</b>: 기판 + 연결표 + 지금 고른 내 과제를 <code>.json</code> 파일로 내려받아요.</li>
+  <li><b>파일 → 파일로 저장</b>: 기판 + 연결표 + 회로도 그림 + 지금 고른 내 과제를 <code>.json</code> 파일로 내려받아요.</li>
   <li><b>기판만 저장</b>: 연결표 없이 기판만 저장해요.</li>
   <li><b>파일 불러오기</b>: 저장한 파일을 열어요. 기판에 파일을 <b>끌어다 놓아도</b> 돼요.</li>
   <li>파일 저장이 안 되는 곳에선 <b>글로 복사·붙여넣기</b>를 써요.</li></ul>
@@ -1389,6 +1394,32 @@ CLK: U1.3 U4.14</pre>
   <h4>안 이어진 핀이 있다고 떠요</h4><ul><li>회로도에서 ✕ 표시된 핀(NC)은 빼고 세요. 나머지는 이어야 하는 핀이에요. 점검 탭에 이름이 나와요.</li></ul>
   <h4>다른 컴퓨터에서 이어서 하고 싶어요</h4><ul><li><b>파일 → 파일로 저장</b> 한 뒤, 다른 컴퓨터에서 <b>파일 불러오기</b>로 열어요.</li></ul>`},
 ];
+/* 수업용(LITE) 안내 문구 */
+if(LITE){
+  TOUR[0].b=`<p>만능기판에 부품을 놓고 선을 그려서 <b>패턴도</b>를 만드는 연습판이에요. 회로도를 보고 직접 생각해서 그려 보세요.</p>
+   <div class="tourmap"><div style="grid-column:1/-1">위: <b>회로도</b> — 회로도 그림, 그리고 핀마다 이어야 할 곳</div><div>왼쪽: <b>부품 찾기</b></div><div>가운데: <b>만능기판</b></div><div>오른쪽: <b>속성·부품표</b></div></div>
+   <p class="note">지금 화면엔 예시 배치가 깔려 있어요. 처음부터 하려면 위쪽 <b>초기화 → 기판 비우기</b>를 눌러요.</p>`;
+  TOUR[1].b=`<ul><li>선생님·선배가 준 <b>과제 파일(.json)</b>을 위쪽 <b>파일 → 파일 불러오기</b>로 열어요. 기판에 끌어다 놓아도 돼요.</li><li>회로도 칸의 <b>원본</b>에서 회로도 그림을, <b>핀 연결표</b>에서 부품 핀마다 이어야 할 곳을 볼 수 있어요.</li></ul>`;
+  TOUR[4]={t:'4. 핀 연결표 보며 그리기',b:`<ul><li>회로도 칸의 <b>핀 연결표</b>에서 핀 옆 글자가 <b>그 핀을 이어야 할 곳</b>이에요. 예) <code>U4·CP1(B), U2·P1</code></li><li>부품을 고르면 오른쪽 속성의 핀 표 <b>이을 곳</b> 칸에도 나와요.</li><li>회로도 넷 이름에 마우스를 올리면 기판에서 그 넷에 이어야 할 핀들이 강조돼요.</li><li>맞았는지 틀렸는지는 알려 주지 않아요. 다 그리면 파일로 저장해서 제출해요.</li><li>${K_('F')}로 <b>납땜면</b>(좌우 반전)을 볼 수 있어요. 실제 납땜은 이쪽 기준이에요.</li></ul>`};
+  const H=id=>HELP.find(h=>h.id===id);
+  H('start').b=`<h3>처음 시작하기</h3><ul><li><b>① 과제 파일 열기</b> — 받은 <code>.json</code> 파일을 <b>파일 → 파일 불러오기</b>로 열어요. <a href="#" data-go="file">자세히</a></li>
+   <li><b>② 회로도 보기</b> — 회로도 칸 <b>원본</b>은 그림, <b>핀 연결표</b>는 핀마다 이을 곳이에요. <a href="#" data-go="check">자세히</a></li>
+   <li><b>③ 부품 놓기</b> — 핀 연결표의 부품 블록을 눌러 꺼낸 다음 기판 구멍을 눌러요. <a href="#" data-go="place">자세히</a></li>
+   <li><b>④ 선 잇기</b> — ${K_('W')}를 누르고 구멍을 차례로 눌러요. <a href="#" data-go="wire">자세히</a></li>
+   <li><b>⑤ 제출</b> — <b>파일 → 파일로 저장</b>한 파일을 내요.</li></ul><div class="btns"><button class="b primary" data-tourstart="1">처음 안내 다시 보기</button></div>`;
+  H('sch').b=`<h3>회로도 칸</h3><div class="fx"><b>원본</b><span>회로도 그림이에요. 받은 과제 파일에 들어 있거나, <b>회로도</b> 버튼으로 사진·PDF를 올려요.</span><b>핀 연결표</b><span>부품마다 핀 옆에 <b>이어야 할 곳</b>이 적혀 있어요.</span><b>− / +</b><span>크기</span><b>좌우 반전</b><span>회로도를 뒤집어 납땜면 방향과 맞춰 봐요.</span><b>접기</b><span>회로도 칸을 접어 기판을 넓게 써요. 아래 경계선을 끌면 크기가 바뀌어요.</span></div>
+   <div class="tip">핀 연결표의 <b>부품 블록을 누르면</b> 그 번호(U1, R1…)로 바로 꺼내져요.</div>`;
+  H('check').t='핀 연결표 보기';
+  H('check').b=`<h3>핀 연결표 보기</h3><p>핀 옆 글자는 <b>그 핀을 이어야 할 곳</b>이에요.</p><ul><li><code>U4·CP1(B), U2·P1</code> → U4의 CP1(B) 핀, U2의 P1 핀과 한 선으로 이어요.</li><li><code>VCC</code>, <code>GND</code> → 전원·접지에 이어요.</li><li><code>NC</code> → 아무 데도 잇지 않아요.</li><li>넷 이름에 마우스를 올리면 기판에서 이어야 할 핀들이 강조돼요.</li></ul>
+   <div class="tip">이 연습판은 맞았는지 틀렸는지 알려 주지 않아요. 회로를 보고 스스로 판단하는 연습이에요.</div>`;
+  H('faq').b=`<h3>자주 묻는 것</h3><h4>부품 번호가 회로도와 달라요</h4><ul><li>핀 연결표의 부품 블록을 눌러 꺼내면 번호가 맞아요. 이미 놓았으면 속성 탭에서 번호를 바꿔요.</li></ul>
+   <h4>심선이 다른 핀 위로 지나가요</h4><ul><li>심선은 지나가는 구멍의 핀과 다 이어져요. 건너갈 땐 점퍼선(${K_('J')})을 써요.</li></ul>
+   <h4>TP는 어디에 꽂아요?</h4><ul><li>측정할 신호선 위에요. TP는 두 다리가 안에서 붙어 있어서 두 다리 모두 같은 선 위에 놓아요.</li></ul>
+   <h4>다른 컴퓨터에서 이어서 하고 싶어요</h4><ul><li><b>파일 → 파일로 저장</b> 후 다른 컴퓨터에서 <b>파일 불러오기</b>.</li></ul>
+   <h4>실습실 컴퓨터를 같이 써요</h4><ul><li>작업은 그 컴퓨터 크롬에 저장돼요. 끝날 때 꼭 파일로 저장하고, 시작할 때 <b>초기화 → 기판 비우기</b>를 해요.</li></ul>`;
+  H('prop').b=H('prop').b.replace('<b>정답</b>','<b>이을 곳</b>');
+  const ki=HELP.findIndex(h=>h.id==='check');if(ki>0){const [c]=HELP.splice(ki,1);HELP.splice(HELP.findIndex(h=>h.id==='sch')+1,0,c)}
+}
 function openHelp(id){const cur=HELP.find(h=>h.id===id)||HELP[0];
   openModal('도움말',`<div class="help"><nav aria-label="도움말 목차"><input id="helpQ" type="search" placeholder="도움말 검색" aria-label="도움말 검색">${HELP.map(h=>`<button data-hid="${h.id}" aria-current="${h.id===cur.id}">${esc(h.t)}</button>`).join('')}</nav><article id="helpBody">${cur.b}</article></div>`,[['닫기',closeModal,'primary']]);
   const d=$('#dlg');d.classList.add('wide');
@@ -1409,10 +1440,10 @@ let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('sh
 
 const HAS_CLAUDE=typeof window.claude?.use==='function';
 /* ───── 회로도 패널: 원본 사진 + 연결표 + 연결 확인 ───── */
-const RKEY='pattern-board-ref-v2',SCKEY='pattern-board-sch-v1',SVKEY='pattern-board-schview-v1',stEl=$('#stage');
+const RKEY='pattern-board-ref-v2',SCKEY='pattern-board-sch-v1',SVKEY='pattern-board-schview-v2',stEl=$('#stage');
 let REF={pages:[],page:0,name:''};
 let SCH={name:'',text:'',parts:[],nets:[]};
-let SV={view:'check',zoom:1,min:false,h:42};
+let SV={view:LITE?'image':'check',zoom:1,min:false,h:52};
 let SCHEV=null,schHover=-1,scanCtl=null;
 const BUILTIN={};
 function saveSch(){try{localStorage.setItem(SCKEY,JSON.stringify(SCH))}catch(e){}}
@@ -1515,12 +1546,12 @@ function pinTagSch(pin){const[ref,n]=pin.split('.');if(ref==='VCC 단자')return
   const q=getFP(makePart(sp.lib,sp.value,sp.params,0,0,0)).pins.find(x=>x.n===+n);return tagOf(ref,q,getFP(makePart(sp.lib,sp.value,sp.params,0,0,0)).pins.length)}
 function tagOf(ref,q,np){if(!q)return ref;if(np<=2)return /^\d$/.test(q.name)?ref:ref+q.name;return ref+'·'+q.name}
 function labelFor(ref,n){const ev=SCHEV;if(!ev)return{segs:[],txt:''};const key=ref+'.'+n;const has=ev.pinNet.has(key);
-  const T=ev.targets(ref,n);const segs=[];
+  const T=LITE?null:ev.targets(ref,n);const segs=[];
   if(T&&T.length){const sh=T.slice(0,3);sh.forEach((x,i)=>{const o=x.o;const t=o.p.kind==='vcc'?'VCC':o.p.kind==='gnd'?'GND':tagOf(o.p.ref,o.q,getFP(o.p).pins.length);
       segs.push({t:(i?', ':'')+t,c:x.st==='ok'?'var(--ok)':x.st==='bad'?'var(--bad)':'var(--muted)',b:x.st==='bad'})});if(T.length>3)segs.push({t:` +${T.length-3}`,c:'var(--muted)'});}
   else if(has){const ni=ev.pinNet.get(key);const nm=SCH.nets[ni].name;
     const m=nm==='VCC'?['VCC']:nm==='GND'?['GND']:ev.mates(ni,key).filter(x=>x!=='VCC 단자'&&x!=='GND 단자').map(pinTagSch);
-    const sh=m.slice(0,3).join(', ')+(m.length>3?` +${m.length-3}`:'');segs.push({t:'→ '+sh,c:'var(--muted)'})}
+    const sh=m.slice(0,3).join(', ')+(m.length>3?` +${m.length-3}`:'');segs.push({t:(LITE?'':'→ ')+sh,c:LITE?'var(--fg)':'var(--muted)'})}
   else segs.push({t:'NC',c:'var(--muted)'});
   return{segs,txt:segs.map(x=>x.t).join('')}}
 let mctx=null;function measureT(t,wt){if(!mctx)mctx=document.createElement('canvas').getContext('2d');mctx.font=`${wt} 12px 'IBM Plex Mono',ui-monospace,monospace`;return mctx.measureText(t).width}
@@ -1545,30 +1576,30 @@ function renderSch(){
   stEl.classList.toggle('schmin',SV.min);stEl.style.setProperty('--schH',SV.h+'%');
   $('#schMin').textContent=SV.min?'펼치기':'접기';$('#schScan').hidden=!HAS_CLAUDE;$('#schFlip').setAttribute('aria-pressed',!!SV.flip);$('#schFlip').style.color=SV.flip?'var(--accent)':'';$('#schFlip').style.fontWeight=SV.flip?'600':'';
   $('#schView').querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===SV.view));
-  const c=SCHEV&&SCHEV.counts;$('#schSum').innerHTML=c?`<span class="c-ok">정답 ${c.ok}</span><span class="c-bad">오류 ${c.bad}</span><span class="c-todo">남음 ${c.todo}</span>`:'';
+  const c=!LITE&&SCHEV&&SCHEV.counts;$('#vCheck').textContent=LITE?'핀 연결표':'연결 확인';$('#schSum').innerHTML=c?`<span class="c-ok">정답 ${c.ok}</span><span class="c-bad">오류 ${c.bad}</span><span class="c-todo">남음 ${c.todo}</span>`:'';
   $('#schSum').title=SCH.name||'';
   const body=$('#schBody');
   if(scanCtl){body.innerHTML=`<div class="sch-busy">회로도를 읽는 중이에요. 30초에서 2분쯤 걸려요. <button class="b" id="scanStop" style="border:1px solid var(--line)">중지</button></div>`;return}
   if(SV.view==='image'){
     if(!REF.pages.length){body.innerHTML=`<div class="sch-empty"><p style="margin:0">올린 회로도가 없어요. 위쪽 <b>회로도</b> 버튼이나 기판에 파일을 끌어다 놓아 올려 주세요.</p><div class="btns"><button class="b" data-act2="upload">회로도 사진·PDF 올리기</button></div></div>`;return}
     renderImg(body);return}
-  if(!SCH.parts.length){body.innerHTML=`<div class="sch-empty"><p style="margin:0">회로도 연결표가 있으면, 기판에서 선을 이을 때마다 맞게 이어진 연결은 <b class="c-ok">초록</b>, 잘못 이어진 연결은 <b class="c-bad">빨강</b>으로 여기 회로도에 표시돼요.</p>
+  if(!SCH.parts.length){body.innerHTML=`<div class="sch-empty"><p style="margin:0">${LITE?'받은 과제 파일을 위쪽 <b>파일 → 파일 불러오기</b>로 열면 여기에 핀마다 이어야 할 곳이 나와요.':'회로도 연결표가 있으면, 기판에서 선을 이을 때마다 맞게 이어진 연결은 <b class="c-ok">초록</b>, 잘못 이어진 연결은 <b class="c-bad">빨강</b>으로 여기 회로도에 표시돼요.'}</p>
     <div class="btns"><button class="b" data-act2="upload">${HAS_CLAUDE?'회로도 올리고 스캔하기':'회로도 사진·PDF 올리기'}</button><button class="b" data-act2="edit">연결표 직접 입력</button></div></div>`;return}
   const blocks=schBlocks();const W=Math.max(520,(body.clientWidth-16)/SV.zoom);
   let x=8,y=8,rowH=0;
   for(const b of blocks){if(x+b.w>W&&x>8){x=8;y+=rowH+6;rowH=0}b.x=x;b.y=y;x+=b.w+6;rowH=Math.max(rowH,b.h)}
   const H=y+rowH+10,ev=SCHEV;
-  const pc=s=>s==='ok'?'var(--ok)':s==='bad'?'var(--bad)':'var(--muted)';
-  const nc=i=>ev.netSt[i]==='ok'?'var(--ok)':ev.netSt[i]==='bad'?'var(--bad)':'var(--fg)';
+  const pc=s=>LITE?'var(--fg)':s==='ok'?'var(--ok)':s==='bad'?'var(--bad)':'var(--muted)';
+  const nc=i=>LITE?'var(--fg)':ev.netSt[i]==='ok'?'var(--ok)':ev.netSt[i]==='bad'?'var(--bad)':'var(--fg)';
   let g='';
   for(const b of blocks){const{sp,l,L,R,PH,ST}=b;const st=ev.partSt.get(sp.ref);
     const bx=b.x+9+b.lw+ST,by=b.y+26;
-    const tc=st==='mismatch'?'var(--bad)':st==='missing'?'var(--muted)':'var(--fg)';
+    const tc=LITE?'var(--fg)':st==='mismatch'?'var(--bad)':st==='missing'?'var(--muted)':'var(--fg)';
     g+=`<g class="blk" data-ref="${svgEsc(sp.ref)}"><rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="6" fill="transparent"/>`;
-    g+=`<text x="${b.x+9}" y="${b.y+15}" font-size="12" font-weight="600" fill="${tc}">${svgEsc(sp.ref)}<tspan font-weight="400" fill="var(--muted)">  ${svgEsc(VALUED.has(l.kind)?sp.value:l.name+(l.kind==='header'?' 1×'+sp.params.n:''))}${st==='missing'?' · 눌러서 놓기':st==='mismatch'?' · 종류가 달라요':''}</tspan></text>`;
+    g+=`<text x="${b.x+9}" y="${b.y+15}" font-size="12" font-weight="600" fill="${tc}">${svgEsc(sp.ref)}<tspan font-weight="400" fill="var(--muted)">  ${svgEsc(VALUED.has(l.kind)?sp.value:l.name+(l.kind==='header'?' 1×'+sp.params.n:''))}${LITE?'':st==='missing'?' · 눌러서 놓기':st==='mismatch'?' · 종류가 달라요':''}</tspan></text>`;
     const pinLine=(q,side,i)=>{const yy=(b.two||l.kind==='tp')?by+11:by+4+PH*i+PH/2;const key=sp.ref+'.'+q.n;const has=ev.pinNet.has(key);const ps=has?ev.pinSt.get(key):'nc';
       const x1=side<0?bx-ST:bx+b.boxW,x2=side<0?bx:bx+b.boxW+ST;const ni=has?ev.pinNet.get(key):-1;
-      let s=`<line x1="${x1}" y1="${yy}" x2="${x2}" y2="${yy}" stroke="${has?pc(ps):'var(--line)'}" stroke-width="${ps==='bad'?2.6:2}" ${has?'':'stroke-dasharray="3 2"'}/>`;
+      let s=`<line x1="${x1}" y1="${yy}" x2="${x2}" y2="${yy}" stroke="${has?pc(ps):'var(--line)'}" stroke-width="${!LITE&&ps==='bad'?2.6:2}" ${has?'':'stroke-dasharray="3 2"'}/>`;
       if(!b.two&&l.kind!=='tp')s+=`<text x="${side<0?bx-3:bx+b.boxW+3}" y="${yy-3}" font-size="8.5" text-anchor="${side<0?'end':'start'}" fill="var(--muted)">${q.n}</text>`;
       if(l.kind==='ic'||l.kind==='fnd'){s+=`<text x="${side<0?bx+5:bx+b.boxW-5}" y="${yy+3.5}" font-size="9.5" text-anchor="${side<0?'start':'end'}" fill="var(--muted)">${svgEsc(q.name)}</text>`}
       const lx=side<0?x1-4:x2+4;
@@ -1582,12 +1613,12 @@ function renderSch(){
       else if(k==='led'||k==='diode'){sym=`<line x1="${bx}" y1="${cy}" x2="${bx+b.boxW}" y2="${cy}" stroke="${ink}"/><path class="bx" d="M${cx-6} ${cy-7} L${cx+5} ${cy} L${cx-6} ${cy+7} Z" fill="var(--panel)" stroke="${ink}" stroke-width="1.4"/><line x1="${cx+6}" y1="${cy-7}" x2="${cx+6}" y2="${cy+7}" stroke="${ink}" stroke-width="1.6"/>`}
       else{sym=`<line x1="${bx}" y1="${cy}" x2="${bx+b.boxW}" y2="${cy}" stroke="${ink}"/><rect class="bx" x="${cx-17}" y="${cy-8}" width="34" height="16" rx="3" fill="var(--panel)" stroke="${ink}" stroke-width="1.3"/><text x="${cx}" y="${cy+3.5}" font-size="9" text-anchor="middle" fill="${ink}">${svgEsc((REFP[k]||'').slice(0,3))}</text>`}
       g+=sym;L.forEach((q,i)=>g+=pinLine(q,-1,i));R.forEach((q,i)=>g+=pinLine(q,1,i));}
-    else{g+=`<rect class="bx" x="${bx}" y="${by}" width="${b.boxW}" height="${b.bh}" rx="3" fill="var(--panel)" stroke="${st==='mismatch'?'var(--bad)':'var(--fg)'}" stroke-width="1.4" ${st==='missing'?'stroke-dasharray="4 3"':''}/>`;
+    else{g+=`<rect class="bx" x="${bx}" y="${by}" width="${b.boxW}" height="${b.bh}" rx="3" fill="var(--panel)" stroke="${!LITE&&st==='mismatch'?'var(--bad)':'var(--fg)'}" stroke-width="1.4" ${!LITE&&st==='missing'?'stroke-dasharray="4 3"':''}/>`;
       if(l.kind==='ic')g+=`<text x="${bx+b.boxW/2}" y="${by+b.bh+12}" font-size="10" text-anchor="middle" fill="var(--muted)">${svgEsc(ICS[l.ic].label)}</text>`;
       L.forEach((q,i)=>g+=pinLine(q,-1,i));R.forEach((q,i)=>g+=pinLine(q,1,i))}
     g+='</g>';}
   const note=
-    `<div style="padding:6px 10px 0;font-size:11.5px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap"><span>핀 옆 글자 = 기판에서 실제로 이어진 핀</span><span class="c-ok">초록 맞게 이음</span><span class="c-bad">빨강 잘못 이음</span><span>회색 → 아직 안 이음 (이어야 할 곳)</span></div>`;
+    `<div style="padding:6px 10px 0;font-size:11.5px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap">${LITE?'<span>핀 옆 글자 = 그 핀을 이어야 할 곳 (같은 이름끼리 한 선으로 이어요)</span><span>부품을 누르면 그 번호로 꺼내져요</span>':'<span>핀 옆 글자 = 기판에서 실제로 이어진 핀</span><span class="c-ok">초록 맞게 이음</span><span class="c-bad">빨강 잘못 이음</span><span>회색 → 아직 안 이음 (이어야 할 곳)</span>'}</div>`;
   body.innerHTML=note+`<svg width="${Math.round(W*SV.zoom)}" height="${Math.round(H*SV.zoom)}" viewBox="0 0 ${W} ${H}" font-family="'IBM Plex Mono',ui-monospace,monospace" role="img" aria-label="연결 확인 회로도">${SV.flip?`<g transform="translate(${W},0) scale(-1,1)">${g}</g>`:g}</svg>`;
   if(SV.flip)body.querySelectorAll('svg text').forEach(t=>{const x=+t.getAttribute('x');const a=t.getAttribute('text-anchor')||'start';t.setAttribute('text-anchor',a==='start'?'end':a==='end'?'start':'middle');t.setAttribute('transform',`translate(${2*x},0) scale(-1,1)`)});
   if(schHover>=0)markNet(schHover);
@@ -1626,7 +1657,7 @@ function snapSeg(P,s){if(!P||!Array.isArray(s)||s.length<4||s.some(v=>typeof v!=
 function isTask1Ref(){return false}
 function traceVisible(){return SCH.tracePage===REF.page}
 function netIdx(name){return SCH.nets.findIndex(n=>n.name===name)}
-function overlayInner(){
+function overlayInner(){if(LITE)return'';
   const tr=(SCH.traces||[]);if(!traceVisible()||(SV.ovl===false&&!SV.edit))return'';let h='';
   tr.forEach((t,ti)=>{const i=netIdx(t.net);if(i<0)return;const st=SCHEV?SCHEV.netSt[i]:'todo';
     const col=st==='ok'||st==='part'?'#14a352':st==='bad'?'#e0312b':SV.edit?'rgba(47,111,214,.55)':'transparent';
@@ -1634,7 +1665,7 @@ function overlayInner(){
     t.segs.forEach((s,si)=>{h+=`<g data-net="${i}" data-tr="${ti}" data-sg="${si}"><line x1="${s[0]}" y1="${s[1]}" x2="${s[2]}" y2="${s[3]}" stroke="transparent" stroke-width="14" vector-effect="non-scaling-stroke"/>`+
       `<line x1="${s[0]}" y1="${s[1]}" x2="${s[2]}" y2="${s[3]}" stroke="${hl?'var(--accent)':col}" stroke-width="${hl?5:st==='bad'?4.5:3.5}" stroke-linecap="round" vector-effect="non-scaling-stroke" ${st==='part'&&!hl?'stroke-dasharray="7 5"':''} opacity=".85"/></g>`})});
   return h}
-function imgBarHTML(){const n=REF.pages.length;const hasTr=(SCH.traces||[]).some(t=>t.segs.length)&&traceVisible();const b1miss=false;
+function imgBarHTML(){const n=REF.pages.length;if(LITE)return(n>1?`쪽 <select id="refSel">${REF.pages.map((_,i)=>`<option value="${i}" ${i===REF.page?'selected':''}>${i+1} / ${n}</option>`).join('')}</select>`:'')+'<span>회로도를 보고 기판에 패턴을 그려 보세요. 핀마다 이을 곳은 <b>핀 연결표</b>에서 볼 수 있어요.</span>';const hasTr=(SCH.traces||[]).some(t=>t.segs.length)&&traceVisible();const b1miss=false;
   let h=n>1?`쪽 <select id="refSel">${REF.pages.map((_,i)=>`<option value="${i}" ${i===REF.page?'selected':''}>${i+1} / ${n}</option>`).join('')}</select>`:'';
   if(SCH.parts.length){
     h+=`<button class="b" id="trShow" aria-pressed="${SV.ovl!==false}" title="원본 회로도 위 초록·빨강 배선 표시를 켜고 꺼요">배선 표시 ${SV.ovl!==false?'켬':'끔'}</button>`;
@@ -1754,7 +1785,7 @@ GND: U1.1 C1.2`;
 }
 function openLoad(){
   openModal('회로도 불러오기',`<div class="opt">
-    <button class="b" data-ld="up"><b>회로도 사진·PDF 올리기</b><small>올린 뒤 스캔을 누르면 Claude가 읽어서 연결표를 만들어요</small></button>
+    <button class="b" data-ld="up"><b>회로도 사진·PDF 올리기</b><small>${HAS_CLAUDE?'올린 뒤 스캔을 누르면 Claude가 읽어서 연결표를 만들어요':'회로도 그림을 보면서 패턴을 그려요'}</small></button>
     <button class="b" data-ld="ed"><b>연결표 직접 입력</b><small>부품과 연결을 글로 적어요</small></button>
     <button class="b" data-ld="clr"><b>연결표 비우기</b><small>회로도 확인을 끝내요 (올린 사진은 남아요)</small></button></div>`,[['닫기',closeModal]]);
   $('#dlg').addEventListener('click',e=>{const b=e.target.closest('[data-ld]');if(!b)return;const k=b.dataset.ld;closeModal();
@@ -1787,7 +1818,7 @@ split.addEventListener('pointerup',()=>{if(sdrag){sdrag=null;saveSV();renderSch(
 split.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();SV.h=Math.max(12,Math.min(85,SV.h+(e.key==='ArrowUp'?-3:3)));saveSV();renderSch()}});
 let schRT;new ResizeObserver(()=>{clearTimeout(schRT);schRT=setTimeout(()=>{if(SV.view==='check'&&SCH.parts.length&&!SV.min)renderSch()},120)}).observe($('#schBody'));
 try{const r=JSON.parse(localStorage.getItem(RKEY)||'null');if(r&&Array.isArray(r.pages))REF=Object.assign(REF,r)}catch(e){}
-try{const r=JSON.parse(localStorage.getItem(SCKEY)||'null');if(r&&r.text){const t=str(r.text,30000),pr=parseNet(t);if(pr.parts.length)SCH={name:str(r.name,60),text:t,parts:pr.parts,nets:pr.nets,traces:cleanTraces(r.traces),tracePage:num(r.tracePage,0,0,99)|0,traceFor:r.traceFor==='b1'?'b1':null}}}catch(e){}
+try{const r=JSON.parse(localStorage.getItem(SCKEY)||'null');if(r&&r.text){const t=strML(r.text,30000),pr=parseNet(t);if(pr.parts.length)SCH={name:str(r.name,60),text:t,parts:pr.parts,nets:pr.nets,traces:cleanTraces(r.traces),tracePage:num(r.tracePage,0,0,99)|0,traceFor:r.traceFor==='b1'?'b1':null}}}catch(e){}
 try{const r=JSON.parse(localStorage.getItem(SVKEY)||'null');if(r)SV=Object.assign(SV,r)}catch(e){}
 
 
@@ -1811,6 +1842,7 @@ applyUI();
 let fitted=false;
 let cvTop=null,cvLeft=null;new ResizeObserver(()=>{const r=cv.getBoundingClientRect();DPR=window.devicePixelRatio||1;if(fitted&&cvTop!=null){view.py-=r.top-cvTop;view.px-=r.left-cvLeft}cvTop=r.top;cvLeft=r.left;CW=r.width;CH=r.height;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);if(!fitted&&CW>0){fitted=true;fit()}req()}).observe(cv);
 document.fonts&&document.fonts.ready.then(req);
+if(LITE){$('#t-chk').hidden=true;if(tab==='chk')tab='prop'}
 rebuild();renderAll();setMode('select');
 {let seen=false;try{seen=!!localStorage.getItem(TKEY)}catch(e){seen=true}if(!seen)setTimeout(()=>openTour(0),400)}
 })();
