@@ -153,7 +153,7 @@ kbd{font:11px var(--mono);border:1px solid var(--line);border-bottom-width:2px;b
 .colors label{display:flex;align-items:center;gap:8px;font-size:12.5px}
 .colors input[type=color]{width:34px;height:26px;border:1px solid var(--line);border-radius:6px;padding:0;background:none;cursor:pointer}
 .stage{display:grid;grid-template-rows:var(--schH,42%) 7px minmax(0,1fr);background:var(--panel)}
-.stage.schmin{grid-template-rows:auto 0 minmax(0,1fr)}
+.stage.schmin{grid-template-rows:auto minmax(0,1fr)}
 .stage.schmin .sch-b,.stage.schmin .split{display:none}
 .sch{display:flex;flex-direction:column;min-height:0}
 .sch-h{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:4px 6px 4px 12px;border-bottom:1px solid var(--line)}
@@ -1553,7 +1553,7 @@ function renderSch(){
     if(!REF.pages.length){body.innerHTML=`<div class="sch-empty"><p style="margin:0">올린 회로도가 없어요. 위쪽 <b>회로도</b> 버튼이나 기판에 파일을 끌어다 놓아 올려 주세요.</p><div class="btns"><button class="b" data-act2="upload">회로도 사진·PDF 올리기</button></div></div>`;return}
     renderImg(body);return}
   if(!SCH.parts.length){body.innerHTML=`<div class="sch-empty"><p style="margin:0">회로도 연결표가 있으면, 기판에서 선을 이을 때마다 맞게 이어진 연결은 <b class="c-ok">초록</b>, 잘못 이어진 연결은 <b class="c-bad">빨강</b>으로 여기 회로도에 표시돼요.</p>
-    <div class="btns"><button class="b" data-act2="upload">회로도 올리고 스캔하기</button><button class="b" data-act2="edit">연결표 직접 입력</button></div></div>`;return}
+    <div class="btns"><button class="b" data-act2="upload">${HAS_CLAUDE?'회로도 올리고 스캔하기':'회로도 사진·PDF 올리기'}</button><button class="b" data-act2="edit">연결표 직접 입력</button></div></div>`;return}
   const blocks=schBlocks();const W=Math.max(520,(body.clientWidth-16)/SV.zoom);
   let x=8,y=8,rowH=0;
   for(const b of blocks){if(x+b.w>W&&x>8){x=8;y+=rowH+6;rowH=0}b.x=x;b.y=y;x+=b.w+6;rowH=Math.max(rowH,b.h)}
@@ -1809,7 +1809,7 @@ try{const c=JSON.parse(localStorage.getItem(CKEY)||'null');if(c)SET=Object.assig
 if(SET.colorKeys&&Object.values(SET.colorKeys).every((v,i)=>v===OLD_CK[i]||v===''))delete SET.colorKeys;
 applyUI();
 let fitted=false;
-new ResizeObserver(()=>{const r=cv.getBoundingClientRect();DPR=window.devicePixelRatio||1;CW=r.width;CH=r.height;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);if(!fitted&&CW>0){fitted=true;fit()}req()}).observe(cv);
+let cvTop=null,cvLeft=null;new ResizeObserver(()=>{const r=cv.getBoundingClientRect();DPR=window.devicePixelRatio||1;if(fitted&&cvTop!=null){view.py-=r.top-cvTop;view.px-=r.left-cvLeft}cvTop=r.top;cvLeft=r.left;CW=r.width;CH=r.height;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);if(!fitted&&CW>0){fitted=true;fit()}req()}).observe(cv);
 document.fonts&&document.fonts.ready.then(req);
 rebuild();renderAll();setMode('select');
 {let seen=false;try{seen=!!localStorage.getItem(TKEY)}catch(e){seen=true}if(!seen)setTimeout(()=>openTour(0),400)}
